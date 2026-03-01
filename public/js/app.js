@@ -6,6 +6,7 @@ import { PhotobombRenderer } from './noisemaker/index.js'
 import { Camera } from './camera.js'
 import { EffectGrid } from './grid.js'
 import { TABS, getEffect } from './effects.js'
+import { capturePhoto, startVideoRecording } from './capture.js'
 
 class PhotobombApp {
     constructor() {
@@ -127,6 +128,13 @@ class PhotobombApp {
         await this._grid.resumeAll()
     }
 
+    async _capturePhoto() {
+        const canvas = document.getElementById('fullsize-canvas')
+        const blob = await capturePhoto(canvas)
+        console.log(`[Photobomb] Photo captured: ${(blob.size / 1024).toFixed(0)}KB`)
+        // Gallery integration in Task 9
+    }
+
     _setupControls() {
         // Grid back button
         document.getElementById('grid-back-btn').addEventListener('click', () => {
@@ -144,9 +152,13 @@ class PhotobombApp {
             })
         })
 
-        // Shutter button (capture wired in Task 7/8)
-        document.getElementById('shutter-btn').addEventListener('click', () => {
-            console.log(`[Photobomb] Capture: ${this._mode}`)
+        // Shutter button
+        document.getElementById('shutter-btn').addEventListener('click', async () => {
+            if (this._mode === 'photo') {
+                await this._capturePhoto()
+            } else {
+                this._toggleVideoRecording()
+            }
         })
     }
 }
