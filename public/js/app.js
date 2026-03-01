@@ -43,6 +43,7 @@ class PhotobombApp {
         // Initialize gallery
         const filmstrip = document.getElementById('filmstrip')
         this._gallery = new Gallery(filmstrip)
+        await this._gallery.init()
 
         // Initialize grid
         const gridContainer = document.getElementById('effect-grid')

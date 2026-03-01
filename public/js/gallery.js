@@ -1,9 +1,11 @@
 /**
  * Gallery module — filmstrip of captured photos/videos
  *
- * Stores captures in memory with thumbnails displayed in the filmstrip.
+ * Stores captures in memory + IndexedDB for persistence.
  * Supports preview, download, and delete.
  */
+
+import { saveCapture, loadAllCaptures, getMaxId } from './db.js'
 
 export class Gallery {
     /**
@@ -11,8 +13,25 @@ export class Gallery {
      */
     constructor(container) {
         this._container = container
-        this._captures = [] // { id, type, blob, thumbUrl, url }
+        this._captures = [] // { id, type, blob, thumbUrl }
         this._nextId = 1
+    }
+
+    /** Load persisted captures from IndexedDB */
+    async init() {
+        try {
+            const saved = await loadAllCaptures()
+            this._nextId = (await getMaxId()) + 1
+            for (const capture of saved) {
+                this._captures.push(capture)
+                this._addThumbElement(capture)
+            }
+            if (saved.length > 0) {
+                console.log(`[Gallery] Restored ${saved.length} captures from IndexedDB`)
+            }
+        } catch (err) {
+            console.warn('[Gallery] Failed to load from IndexedDB:', err)
+        }
     }
 
     /**
@@ -28,13 +47,30 @@ export class Gallery {
         const gl = sourceCanvas.getContext('webgl2') || sourceCanvas.getContext('webgl')
         if (gl) gl.finish()
 
-        // Generate thumbnail from canvas
+        const thumbUrl = this._generateThumbnail(sourceCanvas)
+
+        const capture = { id, type, blob, thumbUrl }
+        this._captures.push(capture)
+        this._addThumbElement(capture)
+
+        // Scroll to newest
+        this._container.scrollLeft = this._container.scrollWidth
+
+        // Persist (fire-and-forget)
+        saveCapture({ id, type, blob, thumbUrl }).catch(err =>
+            console.warn('[Gallery] Failed to persist capture:', err)
+        )
+
+        return capture
+    }
+
+    /** Generate a 56x56 center-cropped thumbnail data URL from a canvas */
+    _generateThumbnail(sourceCanvas) {
         const thumbCanvas = document.createElement('canvas')
         thumbCanvas.width = 56
         thumbCanvas.height = 56
         const ctx = thumbCanvas.getContext('2d')
 
-        // Center-crop to square
         const sw = sourceCanvas.width
         const sh = sourceCanvas.height
         const size = Math.min(sw, sh)
@@ -42,30 +78,23 @@ export class Gallery {
         const sy = (sh - size) / 2
         ctx.drawImage(sourceCanvas, sx, sy, size, size, 0, 0, 56, 56)
 
-        const thumbUrl = thumbCanvas.toDataURL('image/jpeg', 0.7)
+        return thumbCanvas.toDataURL('image/jpeg', 0.7)
+    }
 
-        const capture = { id, type, blob, thumbUrl }
-        this._captures.push(capture)
-
-        // Add thumbnail to filmstrip
+    /** Create and append a thumbnail DOM element for a capture */
+    _addThumbElement(capture) {
         const thumb = document.createElement('img')
         thumb.className = 'filmstrip-thumb'
-        thumb.src = thumbUrl
-        thumb.title = `${type === 'photo' ? 'Photo' : 'Video'} ${id}`
-        thumb.dataset.id = id
+        thumb.src = capture.thumbUrl
+        thumb.title = `${capture.type === 'photo' ? 'Photo' : 'Video'} ${capture.id}`
+        thumb.dataset.id = capture.id
 
-        // Video indicator
-        if (type === 'video') {
+        if (capture.type === 'video') {
             thumb.style.border = '2px solid var(--accent)'
         }
 
         thumb.addEventListener('click', () => this._handleThumbClick(capture))
         this._container.appendChild(thumb)
-
-        // Scroll to newest
-        this._container.scrollLeft = this._container.scrollWidth
-
-        return capture
     }
 
     _handleThumbClick(capture) {
