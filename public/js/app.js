@@ -130,6 +130,9 @@ class PhotobombApp {
             gridView.classList.remove('fading')
             fullsizeView.classList.remove('hidden')
             this._view = 'fullsize'
+
+            document.getElementById('tab-bar').classList.add('hidden')
+            document.getElementById('filmstrip-thumbs').classList.remove('hidden')
         } finally {
             this._busy = false
         }
@@ -152,6 +155,9 @@ class PhotobombApp {
         fullsizeView.classList.remove('fading')
         gridView.classList.remove('hidden')
         this._view = 'grid'
+
+        document.getElementById('tab-bar').classList.remove('hidden')
+        document.getElementById('filmstrip-thumbs').classList.add('hidden')
 
         this._grid.resumeAll()
     }
