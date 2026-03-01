@@ -5,7 +5,7 @@
  * Supports preview, download, and delete.
  */
 
-import { saveCapture, loadAllCaptures, getMaxId } from './db.js'
+import { saveCapture, deleteCapture, loadAllCaptures, getMaxId } from './db.js'
 
 export class Gallery {
     /**
@@ -83,18 +83,41 @@ export class Gallery {
 
     /** Create and append a thumbnail DOM element for a capture */
     _addThumbElement(capture) {
+        const wrapper = document.createElement('div')
+        wrapper.className = 'filmstrip-item'
+        wrapper.dataset.id = capture.id
+
         const thumb = document.createElement('img')
         thumb.className = 'filmstrip-thumb'
         thumb.src = capture.thumbUrl
         thumb.title = `${capture.type === 'photo' ? 'Photo' : 'Video'} ${capture.id}`
-        thumb.dataset.id = capture.id
 
         if (capture.type === 'video') {
             thumb.style.border = '2px solid var(--accent)'
         }
 
         thumb.addEventListener('click', () => this._handleThumbClick(capture))
-        this._container.appendChild(thumb)
+
+        const deleteBtn = document.createElement('button')
+        deleteBtn.className = 'filmstrip-delete'
+        deleteBtn.textContent = '\u00d7'
+        deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation()
+            this._deleteCapture(capture.id)
+        })
+
+        wrapper.appendChild(thumb)
+        wrapper.appendChild(deleteBtn)
+        this._container.appendChild(wrapper)
+    }
+
+    _deleteCapture(id) {
+        this._captures = this._captures.filter(c => c.id !== id)
+        const wrapper = this._container.querySelector(`.filmstrip-item[data-id="${id}"]`)
+        if (wrapper) wrapper.remove()
+        deleteCapture(id).catch(err =>
+            console.warn('[Gallery] Failed to delete from IndexedDB:', err)
+        )
     }
 
     _handleThumbClick(capture) {
