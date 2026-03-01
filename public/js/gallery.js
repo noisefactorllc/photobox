@@ -23,7 +23,6 @@ export class Gallery {
      */
     async add(type, blob, sourceCanvas) {
         const id = this._nextId++
-        const url = URL.createObjectURL(blob)
 
         // Generate thumbnail from canvas
         const thumbCanvas = document.createElement('canvas')
@@ -41,7 +40,7 @@ export class Gallery {
 
         const thumbUrl = thumbCanvas.toDataURL('image/jpeg', 0.7)
 
-        const capture = { id, type, blob, thumbUrl, url }
+        const capture = { id, type, blob, thumbUrl }
         this._captures.push(capture)
 
         // Add thumbnail to filmstrip
@@ -66,11 +65,12 @@ export class Gallery {
     }
 
     _handleThumbClick(capture) {
-        // Download on click
+        const url = URL.createObjectURL(capture.blob)
         const a = document.createElement('a')
-        a.href = capture.url
+        a.href = url
         a.download = `photobomb-${capture.id}.${capture.type === 'photo' ? 'png' : 'webm'}`
         a.click()
+        URL.revokeObjectURL(url)
     }
 
     /** Get total capture count */
