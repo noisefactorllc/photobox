@@ -57,6 +57,20 @@ function showFlash() {
     flash.addEventListener('animationend', () => flash.remove())
 }
 
+/** Pick the best supported video MIME type for MediaRecorder */
+function pickVideoMimeType() {
+    const candidates = [
+        'video/webm;codecs=vp9',
+        'video/webm;codecs=vp8',
+        'video/webm',
+        'video/mp4',
+    ]
+    for (const mime of candidates) {
+        if (MediaRecorder.isTypeSupported(mime)) return mime
+    }
+    return ''
+}
+
 /**
  * Start video recording from a canvas.
  * @param {HTMLCanvasElement} canvas
@@ -65,10 +79,9 @@ function showFlash() {
 export function startVideoRecording(canvas) {
     const stream = canvas.captureStream(30)
     const chunks = []
-    const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
-        ? 'video/webm;codecs=vp9'
-        : 'video/webm'
-    const recorder = new MediaRecorder(stream, { mimeType })
+    const mimeType = pickVideoMimeType()
+    const options = mimeType ? { mimeType } : {}
+    const recorder = new MediaRecorder(stream, options)
     const startTime = Date.now()
 
     recorder.ondataavailable = e => {
@@ -87,7 +100,7 @@ export function startVideoRecording(canvas) {
         /** Stop recording and return the video blob */
         stop: () => new Promise(resolve => {
             recorder.onstop = () => {
-                const blob = new Blob(chunks, { type: 'video/webm' })
+                const blob = new Blob(chunks, { type: recorder.mimeType || 'video/webm' })
                 resolve(blob)
             }
             recorder.stop()

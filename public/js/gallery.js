@@ -72,7 +72,9 @@ export class Gallery {
         const url = URL.createObjectURL(capture.blob)
         const a = document.createElement('a')
         a.href = url
-        a.download = `photobomb-${capture.id}.${capture.type === 'photo' ? 'png' : 'webm'}`
+        const ext = capture.type === 'photo' ? 'png'
+            : capture.blob.type.includes('mp4') ? 'mp4' : 'webm'
+        a.download = `photobomb-${capture.id}.${ext}`
         a.click()
         URL.revokeObjectURL(url)
     }
