@@ -6,7 +6,6 @@ test.describe('Photobomb', () => {
         await context.grantPermissions(['camera'])
 
         await page.goto('/')
-        await expect(page.locator('#title-bar')).toContainText('PHOTOBOMB')
         await expect(page.locator('.grid-container')).toBeVisible()
         await expect(page.locator('.grid-tile')).toHaveCount(9)
         await expect(page.locator('.tab-btn')).toHaveCount(2)

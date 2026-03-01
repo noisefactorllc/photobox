@@ -1,23 +1,12 @@
 #app {
     display: grid;
-    grid-template-rows: auto 1fr auto;
+    grid-template-rows: 1fr auto;
     height: 100dvh;
     width: 100vw;
 }
 
 #title-bar {
-    text-align: center;
-    padding: 12px;
-    font-size: 14px;
-    letter-spacing: 0.15em;
-    color: var(--text-dim);
-    border-bottom: 1px solid var(--border);
-}
-
-#title-bar h1 {
-    font-size: 14px;
-    font-weight: 500;
-    letter-spacing: 0.15em;
+    display: none;
 }
 
 #stage {
@@ -25,8 +14,6 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 16px;
-    padding: 16px;
     overflow: hidden;
 }
 
@@ -38,6 +25,7 @@
     border-top: 1px solid var(--border);
     display: flex;
     align-items: center;
+    justify-content: center;
     padding: 0 16px;
     gap: 8px;
     overflow-x: auto;
