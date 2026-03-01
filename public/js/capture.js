@@ -74,6 +74,9 @@ export function startVideoRecording(canvas) {
     recorder.ondataavailable = e => {
         if (e.data.size > 0) chunks.push(e.data)
     }
+    recorder.onerror = (e) => {
+        console.error('[Capture] Recording error:', e.error)
+    }
 
     recorder.start(100) // 100ms timeslice
 

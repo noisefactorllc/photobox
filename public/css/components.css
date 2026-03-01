@@ -122,6 +122,12 @@
     padding-bottom: 8px;
 }
 
+.fullsize-bottom-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
 /* Mode toggle */
 .mode-toggle {
     display: flex;
