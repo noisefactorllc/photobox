@@ -12,6 +12,7 @@ export class Camera {
         this._video.muted = true
         this._video.autoplay = true
         this._stream = null
+        this._facingMode = 'user'
     }
 
     /** The HTMLVideoElement playing the camera feed */
@@ -19,6 +20,9 @@ export class Camera {
 
     /** True if camera is active */
     get active() { return this._stream !== null }
+
+    /** Current facing mode ('user' or 'environment') */
+    get facingMode() { return this._facingMode }
 
     /** Camera resolution once started */
     get width() { return this._video.videoWidth || 0 }
@@ -31,9 +35,11 @@ export class Camera {
     async start(options = {}) {
         if (this._stream) this.stop()
 
+        this._facingMode = options.facingMode || this._facingMode || 'user'
+
         const constraints = {
             video: {
-                facingMode: options.facingMode || 'user',
+                facingMode: this._facingMode,
                 width: { ideal: options.width || 1280 },
                 height: { ideal: options.height || 720 }
             },
@@ -53,6 +59,12 @@ export class Camera {
             if (this._video.videoWidth > 0) { resolve(); return }
             this._video.addEventListener('loadedmetadata', resolve, { once: true })
         })
+    }
+
+    /** Toggle between front and rear camera */
+    async switchFacingMode() {
+        const next = this._facingMode === 'user' ? 'environment' : 'user'
+        await this.start({ facingMode: next })
     }
 
     /** Stop the camera and release the stream */

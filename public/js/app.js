@@ -75,6 +75,9 @@ class PhotoboxApp {
         // Wire up controls
         this._setupControls()
 
+        // Show camera flip button if multiple cameras available
+        this._checkMultipleCameras()
+
         this._initialized = true
         console.log('[Photobox] Ready')
 
@@ -283,6 +286,33 @@ class PhotoboxApp {
         }
     }
 
+    async _checkMultipleCameras() {
+        try {
+            const devices = await Camera.listDevices()
+            if (devices.length >= 2) {
+                document.getElementById('camera-flip-btn').classList.remove('hidden')
+                document.querySelector('.camera-flip-divider').classList.remove('hidden')
+            }
+        } catch (err) {
+            console.warn('[Photobox] Could not enumerate cameras:', err)
+        }
+    }
+
+    async _switchCamera() {
+        if (this._busy) return
+        this._busy = true
+        try {
+            await this._camera.switchFacingMode()
+            this._grid.setVideoSource(this._camera.video)
+            this._fullsizeRenderer.setVideoSource(this._camera.video)
+            console.log(`[Photobox] Switched to ${this._camera.facingMode} camera`)
+        } catch (err) {
+            console.error('[Photobox] Camera switch failed:', err)
+        } finally {
+            this._busy = false
+        }
+    }
+
     _setupControls() {
         // Grid back button
         document.getElementById('grid-back-btn').addEventListener('click', () => {
@@ -313,6 +343,11 @@ class PhotoboxApp {
         document.getElementById('mirror-btn').addEventListener('click', () => {
             document.getElementById('app').classList.toggle('mirrored')
             document.getElementById('mirror-btn').classList.toggle('active')
+        })
+
+        // Camera flip button
+        document.getElementById('camera-flip-btn').addEventListener('click', async () => {
+            await this._switchCamera()
         })
 
         // Shutter button

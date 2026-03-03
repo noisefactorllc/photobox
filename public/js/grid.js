@@ -88,6 +88,14 @@ export class EffectGrid {
         await Promise.all(promises)
     }
 
+    /** Update the video source for all tile renderers */
+    setVideoSource(videoSource) {
+        this._videoSource = videoSource
+        for (const tile of this._tiles) {
+            tile.renderer.setVideoSource(videoSource)
+        }
+    }
+
     /** Stop all renderers (e.g. when switching to full-size view) */
     stopAll() {
         for (const tile of this._tiles) {

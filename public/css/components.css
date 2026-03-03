@@ -304,6 +304,28 @@
     transform: scaleX(-1);
 }
 
+/* Camera flip button */
+.camera-flip-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+}
+
+.camera-flip-btn:hover {
+    border-color: var(--border-hover);
+    color: var(--text);
+}
+
 /* About button */
 .about-btn {
     background: transparent;
