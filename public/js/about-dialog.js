@@ -128,7 +128,7 @@ class AboutDialog {
         this._dialog.innerHTML = `
             <div class="about-modal-content">
                 <div class="about-modal-graphic" role="presentation">
-                    <div class="about-modal-icon-placeholder"></div>
+                    <img class="about-modal-icon" src="icon.svg" alt="Photobox" draggable="false">
                 </div>
                 <div class="about-modal-details" tabindex="-1">
                     <div class="about-modal-title">Photobox</div>
