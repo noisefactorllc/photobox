@@ -1,6 +1,6 @@
 {
   "name": "photobox",
-  "version": "0.1.0",
+  "version": "0.9.0-SNAPSHOT",
   "description": "Photo Booth clone powered by Noisemaker shader pipeline",
   "type": "module",
   "scripts": {

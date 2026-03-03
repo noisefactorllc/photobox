@@ -6,7 +6,7 @@
 
 import { BUNDLE_VERSION } from './noisemaker/index.js'
 
-const APP_VERSION = '0.1.0-SNAPSHOT'
+const APP_VERSION = '0.9.0-SNAPSHOT'
 const SHADER_CDN = 'https://shaders.noisedeck.app'
 
 class AboutDialog {
