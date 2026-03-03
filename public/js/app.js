@@ -9,6 +9,7 @@ import { TABS, getTabEffects } from './effects.js'
 import { capturePhoto, startVideoRecording } from './capture.js'
 import { Gallery } from './gallery.js'
 import { enableSwipe } from './swipe.js'
+import { aboutDialog } from './about-dialog.js'
 
 class PhotobombApp {
     constructor() {
@@ -76,6 +77,25 @@ class PhotobombApp {
 
         this._initialized = true
         console.log('[Photobomb] Ready')
+
+        this._showWelcomeToast()
+    }
+
+    _showWelcomeToast() {
+        const toast = document.createElement('div')
+        toast.className = 'welcome-toast'
+        toast.innerHTML = 'Welcome to Photobomb.<br>All data stays on your machine. Nothing is uploaded or transmitted.'
+        document.getElementById('app').appendChild(toast)
+
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => toast.classList.add('visible'))
+        })
+
+        setTimeout(() => {
+            toast.classList.remove('visible')
+            toast.addEventListener('transitionend', () => toast.remove())
+            setTimeout(() => { if (toast.parentNode) toast.remove() }, 3000)
+        }, 5000)
     }
 
     _setEffectName(name) {
@@ -282,6 +302,17 @@ class PhotobombApp {
                 const shutter = document.getElementById('shutter-btn')
                 shutter.classList.toggle('video-mode', this._mode === 'video')
             })
+        })
+
+        // About button
+        document.getElementById('about-btn').addEventListener('click', () => {
+            aboutDialog.show()
+        })
+
+        // Mirror / flip button
+        document.getElementById('mirror-btn').addEventListener('click', () => {
+            document.getElementById('app').classList.toggle('mirrored')
+            document.getElementById('mirror-btn').classList.toggle('active')
         })
 
         // Shutter button

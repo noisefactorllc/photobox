@@ -137,7 +137,7 @@
     justify-content: center;
     padding: 16px 20px;
     padding-bottom: calc(16px + env(safe-area-inset-bottom));
-    background: linear-gradient(transparent, rgba(0,0,0,0.6));
+    background: rgba(0, 0, 0, 0.55);
     z-index: 10;
 }
 
@@ -271,6 +271,217 @@
 .effect-name {
     color: var(--text-dim);
     font-size: 13px;
+}
+
+/* Mirror / flip button */
+.mirror-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+}
+
+.mirror-btn:hover {
+    border-color: var(--border-hover);
+    color: var(--text);
+}
+
+.mirror-btn.active {
+    background: var(--bg-elevated);
+    border-color: var(--border-hover);
+    color: var(--text);
+}
+
+#app.mirrored canvas {
+    transform: scaleX(-1);
+}
+
+/* About button */
+.about-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+.about-btn:hover {
+    border-color: var(--border-hover);
+    color: var(--text);
+}
+
+/* Filmstrip divider */
+.filmstrip-divider {
+    width: 1px;
+    height: 24px;
+    background: var(--border);
+    flex-shrink: 0;
+}
+
+/* About dialog */
+dialog {
+    background: var(--glass);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    color: var(--text);
+    padding: 0;
+    margin: auto;
+    position: fixed;
+    inset: 0;
+    max-width: 90vw;
+    max-height: 85vh;
+    overflow: hidden;
+    outline: none;
+}
+
+dialog:focus {
+    outline: none;
+}
+
+dialog::backdrop {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+}
+
+dialog[open] {
+    animation: dialog-open 0.2s ease-out;
+}
+
+@keyframes dialog-open {
+    from {
+        opacity: 0;
+        transform: scale(0.96) translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.about-modal {
+    width: min(720px, 100vw);
+    min-width: 360px;
+}
+
+.about-modal-content {
+    display: grid;
+    grid-template-columns: min(80%, 320px) 1fr;
+    align-items: stretch;
+}
+
+.about-modal-graphic {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2.75rem 2.5rem;
+    background: linear-gradient(180deg, rgba(255, 59, 48, 0.1) 0%, transparent 100%);
+}
+
+.about-modal-icon-placeholder {
+    width: min(80%, 160px);
+    aspect-ratio: 1;
+    border-radius: 24px;
+    border: 2px dashed var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.about-modal-details {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1rem;
+    padding: 2.75rem 1.5rem;
+    color: var(--text-dim);
+}
+
+.about-modal-title {
+    font-weight: 700;
+    font-size: clamp(2rem, 4vw, 2.5rem);
+    color: var(--text);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.about-modal-version {
+    font-size: 0.9rem;
+}
+
+.about-modal-copyright {
+    font-size: 0.9rem;
+}
+
+.about-modal-build {
+    font-size: 0.875rem;
+}
+
+.about-modal-link {
+    color: var(--accent);
+    text-decoration: none;
+    transition: color 0.15s;
+}
+
+.about-modal-link:hover {
+    color: #ff6961;
+}
+
+.about-modal-ecosystem {
+    font-size: 0.8rem;
+    margin-top: 0.75rem;
+    line-height: 1.4;
+}
+
+.about-modal-ecosystem a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.about-modal-ecosystem a:hover {
+    color: #ff6961;
+}
+
+@media (max-width: 720px) {
+    .about-modal {
+        width: min(540px, 94vw);
+    }
+
+    .about-modal-content {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .about-modal-graphic {
+        padding: 2.25rem 2rem 1.5rem;
+    }
+
+    .about-modal-details {
+        align-items: center;
+        padding: 1.75rem 2rem 2.25rem;
+    }
+
+    .about-modal-icon-placeholder {
+        width: min(60%, 140px);
+    }
 }
 
 /* Filmstrip thumbnails */
@@ -409,6 +620,33 @@
 
 button, .grid-tile {
     touch-action: manipulation;
+}
+
+/* Welcome toast */
+.welcome-toast {
+    position: fixed;
+    bottom: calc(96px + env(safe-area-inset-bottom));
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: var(--text-dim);
+    font-size: 13px;
+    line-height: 1.5;
+    text-align: center;
+    padding: 12px 24px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    max-width: min(420px, calc(100vw - 32px));
+    z-index: 50;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 2s ease;
+}
+
+.welcome-toast.visible {
+    opacity: 1;
 }
 
 /* Hidden utility */

@@ -36,4 +36,5 @@ export const {
     stdEnums
 } = bundle
 
+export { BUNDLE_VERSION }
 export const _bundle = bundle

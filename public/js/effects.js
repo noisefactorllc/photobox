@@ -27,29 +27,29 @@ export const TABS = [
                 dsl: `search synth, filter\n\nmedia().grade(saturation: 0).write(o0)\n\nrender(o0)`
             },
             {
-                name: 'Glow',
-                dsl: `search synth, classicNoisemaker\n\nmedia().vaseline(alpha: 0.6).write(o0)\n\nrender(o0)`
+                name: 'Comic',
+                dsl: `search synth, filter\n\nmedia().celShading(mix: 0.75, edgeThreshold: 0.25).write(o0)\n\nrender(o0)`
             },
             {
-                name: 'Comic Book',
-                dsl: `search synth, filter\n\nmedia().edge(amount: 3).posterize(levels: 4).write(o0)\n\nrender(o0)`
+                name: 'Noir',
+                dsl: `search synth, filter\n\nmedia().grade(preset: noir).write(o0)\n\nrender(o0)`
             },
             NORMAL,
             {
-                name: 'Color Pencil',
-                dsl: `search synth, filter\n\nmedia().edge(amount: 2).write(o0)\n\nrender(o0)`
+                name: 'Bloom',
+                dsl: `search synth, filter\n\nmedia().bloom(threshold: 0.65, softKnee: 0.1, intensity: 0.55, radius: 69, taps: 25).vignette(brightness: 0.17, alpha: 0.85).write(o0)\n\nrender(o0)`
             },
             {
-                name: 'Thermal',
-                dsl: `search synth, filter\n\nmedia().grade(preset: 5).write(o0)\n\nrender(o0)`
+                name: 'Edge',
+                dsl: `search synth, filter\n\nmedia().edge(threshold: 20).write(o0)\n\nrender(o0)`
             },
             {
-                name: 'X-Ray',
-                dsl: `search synth, filter\n\nmedia().grade(preset: 3, exposure: 1).write(o0)\n\nrender(o0)`
+                name: 'Cinema',
+                dsl: `search synth, filter\n\nmedia().grade(preset: cinematic).write(o0)\n\nrender(o0)`
             },
             {
-                name: 'Pop Art',
-                dsl: `search synth, filter\n\nmedia().posterize(levels: 3).grade(saturation: 1.8).write(o0)\n\nrender(o0)`
+                name: 'Invert',
+                dsl: `search synth, filter\n\nmedia().inv().write(o0)\n\nrender(o0)`
             }
         ]
     },
@@ -58,36 +58,36 @@ export const TABS = [
         effects: [
             {
                 name: 'Bulge',
-                dsl: `search synth, filter\n\nmedia().bulge(strength: 40).write(o0)\n\nrender(o0)`
+                dsl: `search synth, filter\n\nmedia().bulge().write(o0)\n\nrender(o0)`
             },
             {
-                name: 'Dent',
-                dsl: `search synth, filter\n\nmedia().pinch(strength: 40).write(o0)\n\nrender(o0)`
+                name: 'Pinch',
+                dsl: `search synth, filter\n\nmedia().pinch(strength: 42).write(o0)\n\nrender(o0)`
             },
             {
-                name: 'Twirl',
-                dsl: `search synth, filter\n\nmedia().spiral(strength: 50).write(o0)\n\nrender(o0)`
+                name: 'Spiral',
+                dsl: `search synth, filter\n\nmedia().spiral(strength: -100, speed: 1).write(o0)\n\nrender(o0)`
             },
             {
-                name: 'Squeeze',
-                dsl: `search synth, filter\n\nmedia().lens(displacement: -0.5).write(o0)\n\nrender(o0)`
+                name: 'Mirror',
+                dsl: `search synth, filter\n\nmedia().flipMirror(mode: mirrorRtoL).write(o0)\n\nrender(o0)`
             },
             NORMAL,
             {
-                name: 'Mirror',
-                dsl: `search synth, filter\n\nmedia().flipMirror(mode: mirrorLtoR).write(o0)\n\nrender(o0)`
+                name: 'Warp',
+                dsl: `search synth, filter\n\nmedia().warp(strength: 30, speed: 5).write(o0)\n\nrender(o0)`
             },
             {
-                name: 'Light Tunnel',
-                dsl: `search synth, filter\n\nmedia().tunnel(speed: 1, scale: 0).write(o0)\n\nrender(o0)`
+                name: 'Wavy',
+                dsl: `search synth, filter\n\nmedia().waves(strength: 9.25, speed: 5, rotation: -45).waves(strength: 5.66, speed: 5, rotation: 45).write(o0)\n\nrender(o0)`
             },
             {
-                name: 'Fish Eye',
-                dsl: `search synth, filter\n\nmedia().lens(displacement: 0.6).write(o0)\n\nrender(o0)`
+                name: 'Legion',
+                dsl: `search synth, filter\n\nmedia().seamless(blend: 0.5, repeat: 3).write(o0)\n\nrender(o0)`
             },
             {
-                name: 'Stretch',
-                dsl: `search synth, filter\n\nmedia().waves(strength: 30, scale: 1).write(o0)\n\nrender(o0)`
+                name: 'Bizarro',
+                dsl: `search synth, filter, classicNoisedeck\n\nmedia().cellRefract(amount: 14.2, speed: 5, shape: triangle, scale: 51.43, cellScale: 100).write(o0)\n\nrender(o0)`
             }
         ]
     }
