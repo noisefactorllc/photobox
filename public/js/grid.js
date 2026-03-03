@@ -74,6 +74,7 @@ export class EffectGrid {
      * @param {Array<{name: string, dsl: string}>} effects
      */
     async loadEffects(effects) {
+        this.stopAll()
         const promises = effects.map(async (effect, i) => {
             const tile = this._tiles[i]
             if (!tile) return
