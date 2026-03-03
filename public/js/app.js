@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /**
  * Photobox — Photo Booth clone powered by Noisemaker
  */

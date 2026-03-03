@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /**
  * Capture module — photo and video capture from canvas
  */

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /**
  * Noisemaker integration for Photobox
  */

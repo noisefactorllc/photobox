@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /**
  * IndexedDB persistence for gallery captures
  *

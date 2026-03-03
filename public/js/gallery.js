@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /**
  * Gallery module — filmstrip of captured photos/videos
  *

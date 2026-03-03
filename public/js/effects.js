@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /**
  * Effect preset definitions for Photobox
  *

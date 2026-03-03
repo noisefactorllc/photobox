@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /**
  * Camera module — wraps getUserMedia for webcam access
  *

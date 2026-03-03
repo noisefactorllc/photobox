@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /**
  * PhotoboxRenderer — wraps CanvasRenderer for Photobox's use cases
  *

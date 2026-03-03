@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /**
  * ESM bundle loader for Noisemaker Shaders Core
  *

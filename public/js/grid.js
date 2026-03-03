@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /**
  * Grid module — manages the effect preview grid
  *

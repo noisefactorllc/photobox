@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /**
  * Lightweight horizontal swipe detection.
  *
