@@ -8,17 +8,16 @@
 import { PhotobombRenderer } from './noisemaker/index.js'
 
 const TILE_BASE = 320
+const TILE_COUNT = 9
 
 export class EffectGrid {
     /**
      * @param {HTMLElement} container - the grid container element
      * @param {HTMLVideoElement} videoSource - camera video element
-     * @param {object} options - { tileCount: number }
      */
-    constructor(container, videoSource, options = {}) {
+    constructor(container, videoSource) {
         this._container = container
         this._videoSource = videoSource
-        this._tileCount = options.tileCount || 9
         const camW = videoSource.videoWidth || 1280
         const camH = videoSource.videoHeight || 720
         this._tileWidth = TILE_BASE
@@ -37,7 +36,7 @@ export class EffectGrid {
 
         this._container.innerHTML = ''
 
-        for (let i = 0; i < this._tileCount; i++) {
+        for (let i = 0; i < TILE_COUNT; i++) {
             const tile = document.createElement('div')
             tile.className = 'grid-tile'
             tile.dataset.index = i

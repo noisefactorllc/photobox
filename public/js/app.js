@@ -10,10 +10,6 @@ import { capturePhoto, startVideoRecording } from './capture.js'
 import { Gallery } from './gallery.js'
 import { enableSwipe } from './swipe.js'
 
-function isMobile() {
-    return window.matchMedia('(max-width: 600px)').matches
-}
-
 class PhotobombApp {
     constructor() {
         this._initialized = false
@@ -53,8 +49,7 @@ class PhotobombApp {
 
         // Initialize grid
         const gridContainer = document.getElementById('effect-grid')
-        const tileCount = isMobile() ? 8 : 9
-        this._grid = new EffectGrid(gridContainer, this._camera.video, { tileCount })
+        this._grid = new EffectGrid(gridContainer, this._camera.video)
         await this._grid.init()
 
         // Set up tile click handler
@@ -103,20 +98,18 @@ class PhotobombApp {
 
     async _switchTab(tabIndex) {
         this._currentTab = tabIndex
-        const effects = getTabEffects(tabIndex, isMobile())
 
         // Update active tab button
         document.querySelectorAll('.tab-btn').forEach((btn, i) => {
             btn.classList.toggle('active', i === tabIndex)
         })
 
-        await this._grid.loadEffects(effects)
+        await this._grid.loadEffects(TABS[tabIndex].effects)
     }
 
     async _enterFullsize(tileIndex) {
         if (this._view === 'fullsize' || this._busy) return
-        const effects = getTabEffects(this._currentTab, isMobile())
-        const effect = effects[tileIndex]
+        const effect = TABS[this._currentTab].effects[tileIndex]
         if (!effect) return
         this._busy = true
         try {
@@ -254,7 +247,7 @@ class PhotobombApp {
         if (this._busy || this._recording) return
         this._busy = true
         try {
-            const effects = getTabEffects(this._currentTab, isMobile())
+            const effects = getTabEffects(this._currentTab, true)
             const currentIndex = effects.findIndex(e => e.name === this._currentEffect.name)
             let nextIndex = currentIndex + direction
             if (nextIndex < 0) nextIndex = effects.length - 1

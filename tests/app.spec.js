@@ -21,10 +21,20 @@ test.describe('Photobomb', () => {
         await expect(distortionsTab).toHaveClass(/active/)
     })
 
-    test('shows 8 tiles on mobile viewport', async ({ page, context }) => {
+    test('hides Normal tile on mobile viewport', async ({ page, context }) => {
         await page.setViewportSize({ width: 390, height: 844 })
         await context.grantPermissions(['camera'])
         await page.goto('/')
-        await expect(page.locator('.grid-tile')).toHaveCount(8)
+        await expect(page.locator('.grid-tile')).toHaveCount(9)
+        await expect(page.locator('.grid-tile').nth(4)).toBeHidden()
+    })
+
+    test('hides Normal tile after resizing to mobile', async ({ page, context }) => {
+        await page.setViewportSize({ width: 1280, height: 800 })
+        await context.grantPermissions(['camera'])
+        await page.goto('/')
+        await expect(page.locator('.grid-tile').nth(4)).toBeVisible()
+        await page.setViewportSize({ width: 390, height: 844 })
+        await expect(page.locator('.grid-tile').nth(4)).toBeHidden()
     })
 })
