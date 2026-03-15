@@ -50,7 +50,7 @@ export const TABS = [
             },
             {
                 name: 'Invert',
-                dsl: `search synth, filter\n\nmedia().inv().write(o0)\n\nrender(o0)`
+                dsl: `search synth, filter\n\nmedia().invert().write(o0)\n\nrender(o0)`
             }
         ]
     },
