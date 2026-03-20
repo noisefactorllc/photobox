@@ -4,13 +4,13 @@
   "description": "Photo Booth clone powered by Noisemaker shader pipeline",
   "type": "module",
   "author": "Noise Factor LLC",
-  "homepage": "https://github.com/noisedeck/photobox",
+  "homepage": "https://github.com/noisefactorllc/photobox",
   "repository": {
     "type": "git",
-    "url": "https://github.com/noisedeck/photobox.git"
+    "url": "https://github.com/noisefactorllc/photobox.git"
   },
   "bugs": {
-    "url": "https://github.com/noisedeck/photobox/issues"
+    "url": "https://github.com/noisefactorllc/photobox/issues"
   },
   "scripts": {
     "dev": "npx http-server public -p 3005 -c-1",
