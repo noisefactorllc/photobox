@@ -16,12 +16,7 @@ fetch('./deployment-meta.json', { cache: 'no-store' }).then(async (res) => {
     if (!res.ok) return
     const data = await res.json()
     const hash = data.git_hash?.trim().slice(0, 8) || 'LOCAL'
-    let deployed = 'n/a'
-    if (data.date) {
-        const d = new Date(data.date * 1000)
-        const pad = (n) => String(n).padStart(2, '0')
-        deployed = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`
-    }
+    const deployed = data.date ? new Date(data.date * 1000) : null
     about.setBuild({ hash, deployed })
 }).catch(() => {})
 
@@ -30,8 +25,14 @@ fetch(`${SHADER_CDN}/${BUNDLE_VERSION}/noisemaker-shaders-core.esm.js`, { cache:
     const reader = res.body.getReader()
     const { value } = await reader.read()
     reader.cancel()
-    const match = new TextDecoder().decode(value).slice(0, 500).match(/^\s*\*\s*Build:\s*(\S+)/m)
-    if (match) about.setNoisemaker(match[1])
+    const headerText = new TextDecoder().decode(value).slice(0, 500)
+    const hashMatch = headerText.match(/^\s*\*\s*Build:\s*(\S+)/m)
+    const dateMatch = headerText.match(/^\s*\*\s*Date:\s*(\S+)/m)
+    about.setNoisemaker({
+        version: BUNDLE_VERSION,
+        hash: hashMatch ? hashMatch[1] : null,
+        deployed: dateMatch ? new Date(dateMatch[1]) : null,
+    })
 }).catch(() => {})
 
 export { about as aboutDialog }
