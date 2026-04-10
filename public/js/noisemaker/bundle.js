@@ -7,8 +7,7 @@
  * - Minified for production
  */
 
-const SHADER_CDN = 'https://shaders.noisedeck.app/0.9.0'
-const BUNDLE_VERSION = SHADER_CDN.split('/').pop()
+const SHADER_CDN = 'https://shaders.noisedeck.app/0'
 
 const isLocalDev = typeof window !== 'undefined' && (
     window.location.hostname === 'localhost' ||
@@ -21,7 +20,7 @@ const bundlePath = isLocalDev
     : `${SHADER_CDN}/noisemaker-shaders-core.esm.min.js`
 
 const bundle = await import(bundlePath)
-console.debug(`[bundle.js] Noisemaker bundle v${BUNDLE_VERSION} loaded from ${bundlePath}`)
+console.debug(`[bundle.js] Noisemaker bundle loaded from ${bundlePath}`)
 
 export const {
     CanvasRenderer,
@@ -37,5 +36,4 @@ export const {
     stdEnums
 } = bundle
 
-export { BUNDLE_VERSION }
 export const _bundle = bundle
