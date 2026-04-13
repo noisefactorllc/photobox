@@ -9,7 +9,7 @@
 
 import { CanvasRenderer, extractEffectNamesFromDsl, getAllEffects } from './bundle.js'
 
-const SHADER_CDN = 'https://shaders.noisedeck.app/0'
+const SHADER_CDN = 'https://shaders.noisedeck.app/1'
 
 export class PhotoboxRenderer {
     constructor(canvas, options = {}) {
