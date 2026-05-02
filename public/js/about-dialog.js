@@ -7,7 +7,7 @@ const about = new AboutDialog({
     version: APP_VERSION,
     logo: '<img src="icon.svg" alt="Photobox" draggable="false">',
     repo: 'noisefactorllc/photobox',
-    ecosystem: 'Photobox is a free tool by <a href="https://noisefactor.io/" target="_blank" rel="noopener">Noise Factor</a>, powered by the <a href="https://noisemaker.app/" target="_blank" rel="noopener">Noisemaker</a> open source engine. <a href="https://noisedeck.app/" target="_blank" rel="noopener">Noisedeck</a> is our video synth. Free to use, with a $4/mo subscription for pro features.',
+    ecosystem: 'Photobox is a free tool by <a href="https://noisefactor.io/" target="_blank" rel="noopener">Noise Factor</a>, powered by the <a href="https://noisemaker.app/" target="_blank" rel="noopener">Noisemaker</a> open source engine. <a href="https://noisedeck.app/" target="_blank" rel="noopener">Noisedeck</a> is our video synth.',
 })
 
 fetch('./deployment-meta.json', { cache: 'no-store' }).then(async (res) => {
