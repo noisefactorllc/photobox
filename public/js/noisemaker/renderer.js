@@ -11,6 +11,10 @@ import { CanvasRenderer, extractEffectNamesFromDsl, getAllEffects } from './bund
 
 const SHADER_CDN = 'https://shaders.noisedeck.app/1'
 
+// Reused per-frame texture-upload options — avoids allocating a fresh object
+// on every animation frame for every renderer.
+const FLIP_Y_FALSE = { flipY: false }
+
 export class PhotoboxRenderer {
     constructor(canvas, options = {}) {
         this._canvas = canvas
@@ -35,6 +39,9 @@ export class PhotoboxRenderer {
         this._videoSource = null
         this._animRAF = null
         this._currentDsl = ''
+        // imageSize is constant between resize/compile; track when it needs
+        // re-applying so we don't re-walk every pipeline pass on every frame.
+        this._imageSizeDirty = true
     }
 
     async init() {
@@ -73,6 +80,7 @@ export class PhotoboxRenderer {
         }
 
         await this._renderer.compile(dsl)
+        this._imageSizeDirty = true // fresh pipeline — imageSize must be re-applied
         this._renderer.start()
         this._uploadVideoTexture()
         this._startLoop()
@@ -86,9 +94,14 @@ export class PhotoboxRenderer {
         if (!this._videoSource) return
         if (this._videoSource.readyState < 2) return // HAVE_CURRENT_DATA
         // Texture ID must match compiled step: media() is always step 0
-        this._renderer.updateTextureFromSource?.('imageTex_step_0', this._videoSource, { flipY: false })
-        // imageSize must match canvas resolution (shader maps gl_FragCoord.xy / imageSize)
-        this._renderer.applyStepParameterValues?.({ step_0: { imageSize: [this.width, this.height] } })
+        this._renderer.updateTextureFromSource?.('imageTex_step_0', this._videoSource, FLIP_Y_FALSE)
+        // imageSize must match canvas resolution (shader maps gl_FragCoord.xy /
+        // imageSize). It's constant between resize/compile, and applying it walks
+        // every pipeline pass, so apply only when it actually changed.
+        if (this._imageSizeDirty) {
+            this._renderer.applyStepParameterValues?.({ step_0: { imageSize: [this.width, this.height] } })
+            this._imageSizeDirty = false
+        }
     }
 
     _startLoop() {
@@ -103,6 +116,9 @@ export class PhotoboxRenderer {
     /** Resume rendering (lightweight restart without recompiling) */
     resume() {
         if (!this._currentDsl) return
+        // imageSize is intentionally NOT marked dirty here: start()/stop() only
+        // toggle the render loop and leave the pipeline's uniforms intact, so the
+        // value applied at the last compile/resize is still in effect.
         this._renderer.start()
         this._uploadVideoTexture()
         this._startLoop()
@@ -119,6 +135,7 @@ export class PhotoboxRenderer {
     resize(width, height) {
         this.width = width
         this.height = height
+        this._imageSizeDirty = true // imageSize tracks canvas resolution
         this._renderer.resize?.(width, height)
     }
 

@@ -37,6 +37,11 @@ export class EffectGrid {
 
         this._container.innerHTML = ''
 
+        // Build every tile's DOM synchronously so the full 3x3 grid exists
+        // immediately, then initialize all renderers concurrently. Initializing
+        // sequentially (await per tile) made tiles pop in one at a time and
+        // delayed first paint of the grid by the sum of every renderer's setup.
+        const pending = []
         for (let i = 0; i < TILE_COUNT; i++) {
             const tile = document.createElement('div')
             tile.className = 'grid-tile'
@@ -61,11 +66,13 @@ export class EffectGrid {
                 width: this._tileWidth,
                 height: this._tileHeight
             })
-            await renderer.init()
             renderer.setVideoSource(this._videoSource)
 
             this._tiles.push({ canvas, renderer, name: '', label })
+            pending.push(renderer.init())
         }
+
+        await Promise.all(pending)
 
         this._initialized = true
     }
