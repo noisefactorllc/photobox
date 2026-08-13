@@ -5,7 +5,7 @@ Thanks for your interest in contributing!
 ## Getting Set Up
 
 ```bash
-git clone https://github.com/noisedeck/photobox.git
+git clone https://github.com/noisefactorllc/photobox.git
 cd photobox
 npm install
 npm run dev
@@ -36,4 +36,4 @@ npm test
 
 ## Reporting Issues
 
-Open an issue on [GitHub](https://github.com/noisedeck/photobox/issues). Include your browser, OS, and steps to reproduce.
+Open an issue on [GitHub](https://github.com/noisefactorllc/photobox/issues). Include your browser, OS, and steps to reproduce.
