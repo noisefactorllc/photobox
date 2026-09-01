@@ -1,3 +1,8 @@
+<!-- repo-hero -->
+<a href="https://photobox.noisefactor.io/"><img src="docs/hero.jpg" alt="Photobox Camera app with real-time effects" width="100%"></a>
+
+<sub>Open source from <a href="https://noisefactor.io">Noise Factor</a> &middot; <a href="https://github.com/noisefactorllc">more projects</a></sub>
+
 # Photobox
 
 Photo Booth clone powered by the [Noisemaker](https://noisemaker.app/) shader pipeline. Real-time WebGL effects on your webcam feed.
