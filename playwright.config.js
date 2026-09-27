@@ -4,6 +4,10 @@ import { defineConfig } from '@playwright/test'
 export default defineConfig({
     testDir: './tests',
     timeout: 60000,
+    // Retry once in CI: E2E timing is fragile on shared runners (one flake
+    // observed there). Retried tests are reported as flaky, not passed, and
+    // the run-e2e annotation treats flaky > 0 as a failure verdict.
+    retries: process.env.CI ? 1 : 0,
     reporter: process.env.CI
         ? [['list'], ['json', { outputFile: 'test-results/e2e-report.json' }]]
         : [['list']],
