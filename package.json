@@ -14,7 +14,7 @@
   },
   "scripts": {
     "dev": "npx http-server public -p 3005 -c-1",
-    "test": "npx playwright test"
+    "test": "node scripts/run-e2e.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0"
