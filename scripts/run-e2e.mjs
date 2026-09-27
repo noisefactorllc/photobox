@@ -28,10 +28,10 @@ const testStatus = test.status ?? 1
 // Playwright writes the JSON report even when the suite fails, so parse it
 // before acting on the exit code.
 const reportPath = 'test-results/e2e-report.json'
-let stats = null
+let report = null
 if (existsSync(reportPath)) {
     try {
-        stats = JSON.parse(readFileSync(reportPath, 'utf8')).stats
+        report = JSON.parse(readFileSync(reportPath, 'utf8'))
     } catch (err) {
         console.error(`[E2E] Could not parse ${reportPath}: ${err.message}`)
     }
@@ -39,7 +39,8 @@ if (existsSync(reportPath)) {
     console.error('[E2E] No JSON report — suite outcome unrecorded')
 }
 
-if (stats) {
+if (report) {
+    const stats = report.stats ?? {}
     const verdict =
         `${stats.expected ?? 0} passed, ${stats.unexpected ?? 0} failed, ` +
         `${stats.flaky ?? 0} flaky, ${stats.skipped ?? 0} skipped` +
@@ -56,6 +57,34 @@ if (stats) {
 
     const failed = (stats.unexpected ?? 0) > 0 || (stats.flaky ?? 0) > 0 || testStatus !== 0
     console.log(`::${failed ? 'error' : 'notice'} title=Photobox E2E suite verdict::${verdict}`)
+
+    // Name and first error of every failing test, so failures are
+    // identifiable from the checks API without job-log access.
+    if (failed) {
+        const lines = []
+        const walk = suite => {
+            for (const spec of suite.specs ?? []) {
+                for (const t of spec.tests ?? []) {
+                    if (t.status !== 'unexpected') continue
+                    const msg = t.results?.[0]?.errors?.[0]?.message ?? 'no error detail'
+                    lines.push(`✗ ${suite.title ?? ''} › ${spec.title}: ${msg}`)
+                }
+            }
+            for (const child of suite.suites ?? []) walk(child)
+        }
+        for (const suite of report.suites ?? []) walk(suite)
+        if (lines.length) {
+            // The runner parses stdout line-by-line: encode newlines as %0A
+            // (workflow-command escaping) so multi-entry, multi-line failure
+            // details land in one annotation.
+            const escaped = lines.join('\n')
+                .replace(/%/g, '%25')
+                .replace(/\r/g, '%0D')
+                .replace(/\n/g, '%0A')
+                .slice(0, 3500)
+            console.log(`::error title=Photobox E2E failures::${escaped}`)
+        }
+    }
 }
 
 process.exit(testStatus)
