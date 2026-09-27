@@ -100,11 +100,26 @@ export function startVideoRecording(canvas) {
 
         /** Stop recording and return the video blob */
         stop: () => new Promise(resolve => {
-            recorder.onstop = () => {
-                const blob = new Blob(chunks, { type: recorder.mimeType || 'video/webm' })
-                resolve(blob)
+            const finish = () => {
+                // Release the captureStream tracks: they stay live otherwise
+                // and accumulate with every recording made from this canvas.
+                for (const track of stream.getTracks()) track.stop()
+                resolve(new Blob(chunks, { type: recorder.mimeType || 'video/webm' }))
             }
-            recorder.stop()
+            recorder.onstop = finish
+            // A recorder that already went inactive (e.g. after an error) makes
+            // stop() throw synchronously; settle with whatever was recorded
+            // instead of rejecting.
+            if (recorder.state === 'inactive') {
+                finish()
+                return
+            }
+            try {
+                recorder.stop()
+            } catch (err) {
+                console.error('[Capture] Recording stop failed:', err)
+                finish()
+            }
         })
     }
 }
