@@ -5,6 +5,8 @@
 
 # Photobox
 
+<img src="public/logo.svg" alt="Photobox logo" width="96" height="96">
+
 Photo Booth clone powered by the [Noisemaker](https://noisemaker.app/) shader pipeline. Real-time WebGL effects on your webcam feed.
 
 ## Features
