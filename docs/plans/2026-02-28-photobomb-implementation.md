@@ -8,7 +8,7 @@
 
 **Tech Stack:** Noisemaker shader pipeline (CDN), vanilla JS (ES modules), CSS Grid, Web Components (minimal), getUserMedia, MediaRecorder, IndexedDB, Playwright (tests).
 
-**Reference app:** `/Users/aayars/source/layers/` — follow same bundle consumption pattern.
+**Reference app:** `../layers/` — follow same bundle consumption pattern.
 
 ---
 
@@ -448,7 +448,7 @@ app.init().catch(err => console.error('[Photobomb] Init failed:', err))
 
 **Step 5: Verify it runs**
 
-Run: `cd /Users/aayars/source/photobomb && npm run dev`
+Run: `npm run dev`
 Open: `http://localhost:3005`
 Expected: Dark page with "PHOTOBOMB" title bar, empty stage, frosted filmstrip bar at bottom.
 
@@ -468,7 +468,7 @@ git commit -m "scaffold: project structure, HTML shell, CSS foundation"
 - Create: `public/js/noisemaker/index.js`
 - Create: `public/js/noisemaker/renderer.js`
 
-**Reference:** `/Users/aayars/source/layers/public/js/noisemaker/bundle.js`
+**Reference:** `../layers/public/js/noisemaker/bundle.js`
 
 **Step 1: Create bundle.js (CDN loader)**
 
