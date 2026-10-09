@@ -1,6 +1,22 @@
 // SPDX-License-Identifier: MIT
 import { test, expect } from '@playwright/test'
 
+// Simulate a horizontal touch swipe on the full-size canvas wrapper.
+// Synthetic TouchEvents drive the app's own swipe handler; Chromium provides
+// the Touch/TouchEvent constructors regardless of the hasTouch context option.
+async function swipe(page, fromX, fromY, toX, toY) {
+    await page.evaluate(([fx, fy, tx, ty]) => {
+        const el = document.querySelector('.fullsize-canvas-wrapper')
+        const touch = (x, y) => new Touch({ identifier: 1, target: el, clientX: x, clientY: y })
+        const init = (x, y) => ({
+            bubbles: true, cancelable: true,
+            touches: [touch(x, y)], changedTouches: [touch(x, y)],
+        })
+        el.dispatchEvent(new TouchEvent('touchstart', init(fx, fy)))
+        el.dispatchEvent(new TouchEvent('touchend', init(tx, ty)))
+    }, [fromX, fromY, toX, toY])
+}
+
 // Navigate and wait for the app to finish initializing. Cold start builds ~10
 // WebGL contexts and downloads the shader bundle, which can exceed Playwright's
 // default 5s assertion window on the first load in a browser process. The tile
@@ -100,5 +116,25 @@ test.describe('Photobox', () => {
         const download = await downloadPromise
         expect(download.suggestedFilename()).toMatch(/^photobox-\d+\.webm$/)
         await expect(page.locator('.filmstrip-item')).toHaveCount(1)
+    })
+
+    test('cycles to the adjacent effect when entering from the Normal tile', async ({ page, context }) => {
+        await page.setViewportSize({ width: 1280, height: 800 })
+        await context.grantPermissions(['camera'])
+        await gotoReady(page)
+
+        // Enter full-size view from the center tile (Normal).
+        await page.locator('.grid-tile').nth(4).click()
+        await expect(page.locator('#fullsize-view')).toBeVisible()
+        await expect(page.locator('#effect-name')).toHaveText('Normal')
+
+        // Swipe left (next effect): Normal's right-hand neighbor in grid
+        // order is Bloom — not the first effect of the tab.
+        await swipe(page, 640, 300, 140, 300)
+        await expect(page.locator('#effect-name')).toHaveText('Bloom', { timeout: 10000 })
+
+        // Swipe right (previous effect): from Bloom that is Noir.
+        await swipe(page, 140, 300, 640, 300)
+        await expect(page.locator('#effect-name')).toHaveText('Noir', { timeout: 10000 })
     })
 })

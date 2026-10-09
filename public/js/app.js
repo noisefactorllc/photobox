@@ -272,7 +272,19 @@ class PhotoboxApp {
         this._busy = true
         try {
             const effects = getTabEffects(this._currentTab, true)
-            const currentIndex = effects.findIndex(e => e.name === this._currentEffect.name)
+            let currentIndex = effects.findIndex(e => e.name === this._currentEffect.name)
+            if (currentIndex === -1) {
+                // The current effect is not in the cycling list — entering
+                // full-size from the Normal center tile. Anchor to its
+                // position in the full tab so the first step moves to the
+                // adjacent tile's effect instead of wrapping to the far end
+                // of the list: with Normal at full index i, "next" must land
+                // on filtered[i] (full[i+1]) and "previous" on
+                // filtered[i-1] (full[i-1]).
+                const fullIndex = TABS[this._currentTab].effects
+                    .findIndex(e => e.name === this._currentEffect.name)
+                currentIndex = direction > 0 ? fullIndex - 1 : fullIndex
+            }
             let nextIndex = currentIndex + direction
             if (nextIndex < 0) nextIndex = effects.length - 1
             if (nextIndex >= effects.length) nextIndex = 0
