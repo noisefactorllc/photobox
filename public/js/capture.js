@@ -6,15 +6,20 @@
 /**
  * Capture a photo from a canvas with countdown and flash.
  * @param {HTMLCanvasElement} canvas - the canvas to capture from
- * @param {object} options - { countdown: boolean }
- * @returns {Promise<Blob>} the captured image blob
+ * @param {object} options - { countdown: boolean, signal: AbortSignal }
+ * @returns {Promise<Blob|null>} the captured image blob, or null when aborted
  */
 export async function capturePhoto(canvas, options = {}) {
     const countdown = options.countdown !== false
+    const signal = options.signal
 
     if (countdown) {
-        await showCountdown()
+        await showCountdown(signal)
     }
+
+    // Aborted during the countdown (e.g. the user left full-size view):
+    // no flash, no capture.
+    if (signal?.aborted) return null
 
     // Flash
     showFlash()
@@ -28,18 +33,29 @@ export async function capturePhoto(canvas, options = {}) {
     })
 }
 
-/** Show 3-2-1 countdown overlay */
-function showCountdown() {
+/** Show 3-2-1 countdown overlay, dismissible via an optional AbortSignal */
+function showCountdown(signal) {
     return new Promise(resolve => {
         const overlay = document.createElement('div')
         overlay.className = 'countdown-overlay'
         document.body.appendChild(overlay)
 
         let count = 3
+        let done = false
+        const finish = () => {
+            if (done) return
+            done = true
+            signal?.removeEventListener('abort', onAbort)
+            overlay.remove()
+            resolve()
+        }
+        const onAbort = () => finish()
+        signal?.addEventListener('abort', onAbort)
+
         const tick = () => {
+            if (done) return
             if (count <= 0) {
-                overlay.remove()
-                resolve()
+                finish()
                 return
             }
             overlay.innerHTML = `<span class="countdown-number">${count}</span>`

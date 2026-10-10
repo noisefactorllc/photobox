@@ -29,6 +29,12 @@ async function gotoReady(page) {
     await expect(page.locator('.tab-btn')).toHaveCount(2, { timeout: 20000 })
 }
 
+// Enter full-size view and wait for the full-size renderer to be visible.
+async function enterFullsize(page, tileIndex) {
+    await page.locator('.grid-tile').nth(tileIndex).click()
+    await expect(page.locator('#fullsize-view')).toBeVisible()
+}
+
 test.describe('Photobox', () => {
     test('loads and shows grid view', async ({ page, context }) => {
         await page.setViewportSize({ width: 1280, height: 800 })
@@ -115,6 +121,56 @@ test.describe('Photobox', () => {
 
         const download = await downloadPromise
         expect(download.suggestedFilename()).toMatch(/^photobox-\d+\.webm$/)
+        await expect(page.locator('.filmstrip-item')).toHaveCount(1)
+    })
+
+    test('cancels photo capture when leaving full-size during the countdown', async ({ page, context }) => {
+        await page.setViewportSize({ width: 1280, height: 800 })
+        await context.grantPermissions(['camera'])
+        await gotoReady(page)
+
+        await enterFullsize(page, 0)
+
+        // Start a photo capture (3s countdown), then back out of full-size
+        // view while it is still counting down.
+        await page.locator('#shutter-btn').dispatchEvent('click')
+        await expect(page.locator('.countdown-overlay')).toHaveCount(1)
+
+        const downloads = []
+        page.on('download', d => downloads.push(d))
+
+        await page.locator('#grid-back-btn').dispatchEvent('click')
+        await expect(page.locator('#grid-view')).toBeVisible()
+
+        // The countdown must be torn down immediately, not keep ticking
+        // over the grid view, flash, and capture a stale frame.
+        await expect(page.locator('.countdown-overlay')).toHaveCount(0, { timeout: 1000 })
+
+        // Wait past the countdown+flash window: nothing may be captured,
+        // saved to the filmstrip, or auto-downloaded.
+        await page.waitForTimeout(4500)
+        await expect(page.locator('.filmstrip-item')).toHaveCount(0)
+        expect(downloads).toEqual([])
+    })
+
+    test('captures a photo from full-size view', async ({ page, context }) => {
+        await page.setViewportSize({ width: 1280, height: 800 })
+        await context.grantPermissions(['camera'])
+        await gotoReady(page)
+
+        await enterFullsize(page, 0)
+
+        // Match the video test's default-timing window: software-WebGL
+        // rendering can slow the countdown + toBlob path on cold runners.
+        const downloadPromise = page.waitForEvent('download', { timeout: 30000 })
+        await page.locator('#shutter-btn').dispatchEvent('click')
+
+        // The countdown runs to completion in full-size view.
+        await expect(page.locator('.countdown-overlay')).toHaveCount(1)
+        await expect(page.locator('.countdown-overlay')).toHaveCount(0, { timeout: 10000 })
+
+        const download = await downloadPromise
+        expect(download.suggestedFilename()).toMatch(/^photobox-\d+\.png$/)
         await expect(page.locator('.filmstrip-item')).toHaveCount(1)
     })
 

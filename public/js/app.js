@@ -24,6 +24,7 @@ class PhotoboxApp {
         this._view = 'grid'  // 'grid' | 'fullsize'
         this._recording = null
         this._timerInterval = null
+        this._captureAbort = null
         this._gallery = null
         this._busy = false
         this._swipe = null
@@ -178,6 +179,10 @@ class PhotoboxApp {
     }
 
     async _exitFullsize() {
+        // Cancel an in-flight photo capture: its countdown must not keep
+        // running over the grid view or snapshot the hidden canvas.
+        this._captureAbort?.abort()
+
         if (this._recording) {
             await this._stopVideoRecording()
         }
@@ -209,15 +214,22 @@ class PhotoboxApp {
     async _capturePhoto() {
         if (this._busy) return
         this._busy = true
+        // Abortable so leaving full-size view mid-countdown cancels the
+        // capture instead of snapshotting a stale frame from the hidden
+        // canvas after the user has already returned to the grid.
+        const abort = new AbortController()
+        this._captureAbort = abort
         try {
             const canvas = document.getElementById('fullsize-canvas')
-            const blob = await capturePhoto(canvas)
+            const blob = await capturePhoto(canvas, { signal: abort.signal })
+            if (!blob || abort.signal.aborted) return
             const capture = await this._gallery.add('photo', blob, canvas)
             this._gallery.download(capture)
             console.log(`[Photobox] Photo captured: ${(blob.size / 1024).toFixed(0)}KB`)
         } catch (err) {
             console.error('[Photobox] Photo capture failed:', err)
         } finally {
+            this._captureAbort = null
             this._busy = false
         }
     }
