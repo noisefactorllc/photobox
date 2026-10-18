@@ -20,7 +20,7 @@ fetch('./deployment-meta.json', { cache: 'no-store' }).then(async (res) => {
 
 // Noisemaker engine metadata: the AboutDialog fetches it directly from
 // shaders.noisedeck.app/1/deployment-meta.json (a proper JSON file
-// emitted by the scaffold library-release workflow on every noisemaker
+// emitted by the library-release workflow on every noisemaker
 // release). The /0/ rolling symlink auto-tracks the latest patch within
 // major 0.
 about.setNoisemakerFromUrl('https://shaders.noisedeck.app/1/deployment-meta.json')
