@@ -11,6 +11,7 @@ import { capturePhoto, startVideoRecording } from './capture.js'
 import { Gallery } from './gallery.js'
 import { enableSwipe } from './swipe.js'
 import { aboutDialog } from './about-dialog.js'
+import { initializeTooltips } from 'handfish'
 
 class PhotoboxApp {
     constructor() {
@@ -33,6 +34,8 @@ class PhotoboxApp {
     async init() {
         if (this._initialized) return
         console.log('[Photobox] Initializing...')
+        // Every hover tooltip is a Handfish tooltip: .tooltip with data-title.
+        initializeTooltips()
 
         // Start camera
         try {

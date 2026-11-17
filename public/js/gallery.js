@@ -89,9 +89,9 @@ export class Gallery {
         wrapper.dataset.id = capture.id
 
         const thumb = document.createElement('img')
-        thumb.className = 'filmstrip-thumb'
+        thumb.className = 'filmstrip-thumb tooltip'
         thumb.src = capture.thumbUrl
-        thumb.title = `${capture.type === 'photo' ? 'Photo' : 'Video'} ${capture.id}`
+        thumb.dataset.title = `${capture.type === 'photo' ? 'Photo' : 'Video'} ${capture.id}`
 
         if (capture.type === 'video') {
             thumb.style.border = '2px solid var(--accent)'
