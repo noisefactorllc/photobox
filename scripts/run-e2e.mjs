@@ -7,13 +7,11 @@
 // uses fake camera flags, so the suite runs in plain CI too — ci.yml's
 // test step runs this script directly.
 //
-// ci.yml's test step is continue-on-error, so this script makes the verdict
-// independently auditable: after every run it reads the suite's pass/fail
-// stats from Playwright's JSON reporter and emits them as a check-run
-// annotation (::notice on pass, ::error on fail) plus the GitHub step
-// summary — both fetchable from the checks API even though the job
-// conclusion would mask a failure. The report is read BEFORE honoring
-// Playwright's exit code, so a failing run is still recorded.
+// The script also makes the verdict auditable: after every run it reads the
+// suite's pass/fail stats from Playwright's JSON reporter and emits them as a
+// check-run annotation (::notice on pass, ::error on fail) plus the GitHub
+// step summary, both fetchable from the checks API. The report is read BEFORE
+// honoring Playwright's exit code, so a failing run is still recorded.
 import { spawnSync } from 'node:child_process'
 import { readFileSync, existsSync, appendFileSync } from 'node:fs'
 
