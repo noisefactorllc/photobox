@@ -19,14 +19,16 @@ async function swipe(page, fromX, fromY, toX, toY) {
 
 // Navigate and wait for the app to finish initializing. Cold start builds ~10
 // WebGL contexts and downloads the shader bundle, which can exceed Playwright's
-// default 5s assertion window on the first load in a browser process. The tile
-// elements are created synchronously, so they are not a readiness signal; the
-// tab bar is built only after every grid renderer finishes initializing, so wait
-// for it (under the generous timeout) to keep the slow cold-start work covered.
+// default 5s assertion window on the first load in a browser process. Neither
+// the tiles nor the tab bar mark readiness: both exist before the full-size
+// renderer has initialized. The app logs "[Photobox] Ready" once it has, so
+// wait for that (under the generous timeout) to keep the cold-start work covered.
 async function gotoReady(page) {
+    const ready = page.waitForEvent('console', { predicate: m => m.text() === '[Photobox] Ready', timeout: 20000 })
     await page.goto('/')
     await expect(page.locator('.grid-tile')).toHaveCount(9, { timeout: 20000 })
     await expect(page.locator('.tab-btn')).toHaveCount(2, { timeout: 20000 })
+    await ready
 }
 
 // Enter full-size view and wait for the full-size renderer to be visible.
@@ -36,6 +38,26 @@ async function enterFullsize(page, tileIndex) {
 }
 
 test.describe('Photobox', () => {
+    test('a tile clicked while Photobox is still starting opens full-size once ready', async ({ page, context }) => {
+        await page.setViewportSize({ width: 1280, height: 800 })
+        await context.grantPermissions(['camera'])
+        const errors = []
+        page.on('pageerror', error => errors.push(error.message))
+        let ready = false
+        page.on('console', message => { if (message.text() === '[Photobox] Ready') ready = true })
+
+        await page.goto('/')
+        await expect(page.locator('.grid-tile')).toHaveCount(9, { timeout: 20000 })
+        // The tiles exist before the full-size renderer has initialized.
+        expect(ready, 'the click must land before Photobox is ready').toBe(false)
+        await page.locator('.grid-tile').first().click()
+
+        await expect(page.locator('#fullsize-view')).toBeVisible({ timeout: 20000 })
+        await expect(page.locator('#grid-view')).toHaveClass(/hidden/)
+        await expect(page.locator('#grid-view')).not.toHaveClass(/fading/)
+        expect(errors).toEqual([])
+    })
+
     test('loads and shows grid view', async ({ page, context }) => {
         await page.setViewportSize({ width: 1280, height: 800 })
         await context.grantPermissions(['camera'])

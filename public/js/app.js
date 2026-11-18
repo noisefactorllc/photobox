@@ -19,6 +19,9 @@ class PhotoboxApp {
         this._camera = new Camera()
         this._grid = null
         this._fullsizeRenderer = null
+        // Settles once the full-size renderer has initialized. The grid's
+        // tiles take clicks before that, so entering full-size waits for it.
+        this._fullsizeReady = new Promise(resolve => { this._fullsizeReadyResolve = resolve })
         this._currentTab = 0
         this._currentEffect = null
         this._mode = 'photo' // 'photo' | 'video'
@@ -56,10 +59,10 @@ class PhotoboxApp {
         // Initialize grid
         const gridContainer = document.getElementById('effect-grid')
         this._grid = new EffectGrid(gridContainer, this._camera.video)
-        await this._grid.init()
-
-        // Set up tile click handler
+        // The tiles take clicks as soon as init() puts them on the page, so
+        // connect them first; entering full-size waits until it is ready.
         this._grid.onTileClick = (index, name) => this._enterFullsize(index)
+        await this._grid.init()
 
         // Build tab buttons
         this._buildTabs()
@@ -76,6 +79,7 @@ class PhotoboxApp {
         })
         await this._fullsizeRenderer.init()
         this._fullsizeRenderer.setVideoSource(this._camera.video)
+        this._fullsizeReadyResolve()
 
         // Wire up controls
         this._setupControls()
@@ -141,6 +145,9 @@ class PhotoboxApp {
         if (!effect) return
         this._busy = true
         try {
+            // A tile clicked while Photobox is still starting opens once the
+            // full-size renderer is ready, rather than failing mid-fade.
+            await this._fullsizeReady
             this._currentEffect = { ...effect, tileIndex }
 
             const gridView = document.getElementById('grid-view')
