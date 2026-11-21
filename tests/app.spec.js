@@ -78,6 +78,43 @@ test.describe('Photobox', () => {
         await expect(distortionsTab).toHaveClass(/active/)
     })
 
+    test('camera flip requests rear then front capture and releases each previous stream', async ({ page }) => {
+        await page.addInitScript(() => {
+            const media = navigator.mediaDevices
+            const getUserMedia = media.getUserMedia.bind(media)
+            window.cameraRequests = []
+            window.cameraStreams = []
+            media.enumerateDevices = async () => [
+                { kind: 'videoinput', deviceId: 'front', label: 'Front camera' },
+                { kind: 'videoinput', deviceId: 'rear', label: 'Rear camera' },
+            ]
+            media.getUserMedia = async constraints => {
+                window.cameraRequests.push(structuredClone(constraints))
+                const stream = await getUserMedia(constraints)
+                window.cameraStreams.push(stream)
+                return stream
+            }
+        })
+        await gotoReady(page)
+        const flip = page.locator('#camera-flip-btn')
+        await expect(flip).toBeVisible()
+        for (const _mode of ['environment', 'user']) {
+            const switched = page.waitForEvent('console', {
+                predicate: message => message.text().startsWith('[Photobox] Switched to '),
+            })
+            await flip.click()
+            await switched
+        }
+        const result = await page.evaluate(() => ({
+            modes: window.cameraRequests.map(request => request.video.facingMode),
+            audio: window.cameraRequests.map(request => request.audio),
+            tracks: window.cameraStreams.map(stream => stream.getVideoTracks().map(track => track.readyState)),
+        }))
+        expect(result.modes).toEqual(['user', 'environment', 'user'])
+        expect(result.audio).toEqual([false, false, false])
+        expect(result.tracks).toEqual([['ended'], ['ended'], ['live']])
+    })
+
     test('hides Normal tile on mobile viewport', async ({ page, context }) => {
         await page.setViewportSize({ width: 390, height: 844 })
         await context.grantPermissions(['camera'])

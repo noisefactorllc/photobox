@@ -13,32 +13,42 @@
 // step summary, both fetchable from the checks API. The report is read BEFORE
 // honoring Playwright's exit code, so a failing run is still recorded.
 import { spawnSync } from 'node:child_process'
-import { readFileSync, existsSync, appendFileSync } from 'node:fs'
+import { readFileSync, mkdtempSync, rmSync, appendFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-const common = { stdio: 'inherit', shell: true }
+const root = fileURLToPath(new URL('../', import.meta.url))
+const cli = fileURLToPath(new URL('../node_modules/@playwright/test/cli.js', import.meta.url))
+const common = { stdio: 'inherit', cwd: root }
 
-const install = spawnSync('npx', ['playwright', 'install', 'chromium'], common)
+const install = spawnSync(process.execPath, [cli, 'install', 'chromium'], common)
 if (install.status !== 0) process.exit(install.status ?? 1)
 
-const test = spawnSync('npx', ['playwright', 'test'], common)
+const reportDir = mkdtempSync(join(tmpdir(), 'photobox-e2e-'))
+const reportPath = join(reportDir, 'report.json')
+const test = spawnSync(process.execPath, [cli, 'test', ...process.argv.slice(2), '--reporter=list,json'], {
+    ...common,
+    env: { ...process.env, PLAYWRIGHT_JSON_OUTPUT_NAME: reportPath },
+})
 const testStatus = test.status ?? 1
 
 // Playwright writes the JSON report even when the suite fails, so parse it
 // before acting on the exit code.
-const reportPath = 'test-results/e2e-report.json'
 let report = null
-if (existsSync(reportPath)) {
-    try {
-        report = JSON.parse(readFileSync(reportPath, 'utf8'))
-    } catch (err) {
-        console.error(`[E2E] Could not parse ${reportPath}: ${err.message}`)
-    }
-} else {
-    console.error('[E2E] No JSON report — suite outcome unrecorded')
+try {
+    report = JSON.parse(readFileSync(reportPath, 'utf8'))
+} catch (err) {
+    console.error(`[E2E] Missing or invalid test report: ${err.message}`)
+} finally {
+    rmSync(reportDir, { recursive: true, force: true })
 }
 
+let failed = true
 if (report) {
     const stats = report.stats ?? {}
+    failed = testStatus !== 0 || !Number.isInteger(stats.expected) || stats.expected <= 0 ||
+        stats.unexpected !== 0 || stats.flaky !== 0 || stats.skipped !== 0
     const verdict =
         `${stats.expected ?? 0} passed, ${stats.unexpected ?? 0} failed, ` +
         `${stats.flaky ?? 0} flaky, ${stats.skipped ?? 0} skipped` +
@@ -53,7 +63,6 @@ if (report) {
         )
     }
 
-    const failed = (stats.unexpected ?? 0) > 0 || (stats.flaky ?? 0) > 0 || testStatus !== 0
     console.log(`::${failed ? 'error' : 'notice'} title=Photobox E2E suite verdict::${verdict}`)
 
     // Name and first error of every failing test, so failures are
@@ -85,4 +94,4 @@ if (report) {
     }
 }
 
-process.exit(testStatus)
+process.exit(testStatus || (failed ? 1 : 0))

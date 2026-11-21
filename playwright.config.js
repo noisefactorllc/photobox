@@ -3,6 +3,8 @@ import { defineConfig } from '@playwright/test'
 
 export default defineConfig({
     testDir: './tests',
+    forbidOnly: !!process.env.CI,
+    workers: 1,
     timeout: 60000,
     // Retry once in CI: E2E timing is fragile on shared runners (one flake
     // observed there). Retried tests are reported as flaky, not passed, and
@@ -13,6 +15,7 @@ export default defineConfig({
         : [['list']],
     use: {
         baseURL: 'http://localhost:3005',
+        headless: true,
         permissions: ['camera'],
         launchOptions: {
             args: [
@@ -24,6 +27,6 @@ export default defineConfig({
     webServer: {
         command: 'npx http-server public -p 3005 -c-1',
         port: 3005,
-        reuseExistingServer: true,
+        reuseExistingServer: false,
     },
 })
